@@ -1,0 +1,33 @@
+{
+    "menu":{
+        "offer": "想了解Bukku的服务。",
+        "plans": "想了解Bukku的配套。",
+        "pricing": "想了解配套价钱。",
+        "support": "我需要技术支援。",
+        "other_enquiries": "我有其它的疑问。",
+        "done": "我没有其它问题了。"
+    },
+    "message":{
+        "thank": "您好 {{userFirstName}}，感谢您对 Bukku感兴趣!",
+        "choose": "请输入您的问题：",
+        "choose_other": "请问您是否还有其它问题呢？"
+    },
+    "offer":{
+        "intro": "Bukku 是一个专为马来西亚中小型企业而创建的100%云端会计软件。",
+        "use": "它结合了免费发票系统，并将繁琐的做账程序自动化，还能即时生成财务报告哦，让你随时随地，只要一机在手就能掌握公司财务。",
+        "link": "点击查看Bukku 45项功能：https://bukku.my/features"
+    },
+    "plans":{
+        "list": "我们目前有3种配套哦:\n1. 专为新成立的创业公司打造的 Launch Plan\n2. 适合处于成长阶段的创业公司和中小型企业的 Growth Plan\n3. 为已发展的中小型企业量身定制的 Premium Plan",
+        "packages": "点击了解我们的配套详情：https://bukku.my/pricing"
+    },
+    "pricing":{
+        "intro": "目前我们提供免费的发票软件。如果您对我们的云端做账方案有兴趣，我们的配套最低只从RM59/月起。",
+        "link": "点击了解我们的配套详情：https://bukku.my/pricing"
+    },
+    "input": "请在下方输入您的问题哦。",
+    "received": "感谢您的咨询！我们已收到您的问题了，将会尽快给予答复哦。",
+    "support" :"您可以登录您的Bukku 账户：https://app.bukku.my/signin ，并点击下方的聊天按钮开启与我们技术团队的对话。INSERT IMAGE",
+    "trial": "获取免费30天试用期: https://bukku.my/splash",
+    "done": "没问题，如果有任何疑问，欢迎随时联系我们！祝您有个美好的一天！"
+}

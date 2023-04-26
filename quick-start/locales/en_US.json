@@ -1,0 +1,33 @@
+{
+    "menu":{
+        "offer": "Bukku's Features",
+        "plans": "Bukku's Plans",
+        "pricing": "Bukku's Pricing",
+        "support": "Technical Support",
+        "other_enquiries": "Other Enquiries",
+        "done": "No Further Questions"
+    },
+    "message":{
+        "thank": "Hello {{userFirstName}}, thank you for contacting the Bukku team!",
+        "choose": "Please choose your question:",
+        "choose_other": "Do you have any other questions?"
+    },
+    "offer":{
+        "intro": "Bukku is a homegrown cloud based accounting software designed specifically for SME business owners and accountants in Malaysia.",
+        "use": "It automates your tedious accounting & invoicing tasks in a few clicks. It also gives you better insights on how your business is doing in real-time, anytime, anywhere with any devices.",
+        "link": "Check out the 45 features of Bukku here: https://bukku.my/features"
+    },
+    "plans":{
+        "list": "We currently offer 3 plans:\n1. Launch Plan customised for new startups\n2. Growth Plan for fast growing startups & SMEs\n3. Premium Plan dedicated for established SMEs",
+        "packages": "Find out more about the packages here: https://bukku.my/pricing"
+    },
+    "pricing":{
+        "intro": "You can enjoy our e-invoicing solution for free. If you are also looking for a basic accounting solution, we have plans as low as RM59/month.",
+        "link": "Find out more about the pricing here: https://bukku.my/pricing"
+    },
+    "input": "Please enter your question in the field provided.",
+    "received": "We have received your question! Our team will be in touch with you soon.",
+    "support" :"For technical support, you may log in to your Bukku account here: https://app.bukku.my/signin.\nClick the chat button to start conversation with our support team.INSERT IMAGE",
+    "trial": "Sign Up for a 30-Day Free Trial here: https://bukku.my/splash",
+    "done": "No problem! Please do not hesitate to reach out to us in the future if you have further questions. Have a nice day!"
+}

@@ -22,11 +22,23 @@
 // Use dotenv to read .env vars into Node
 require('dotenv').config();
 
+const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
+const WEBHOOK_URL = process.env.WEBHOOK_URL;
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
+const APP_URL = process.env.APP_URL;
+
 // Imports dependencies and set up http server
 const
+  Response = require('./Response'),
   request = require('request'),
   express = require('express'),
   { urlencoded, json } = require('body-parser'),
+  i18n = require("./i18n.config"),
+  dayjs = require('dayjs'),
+  utc = require('dayjs/plugin/utc'),
+  timezone = require('dayjs/plugin/timezone'),
+  duration = require('dayjs/plugin/duration'),
+  localizedFormat = require('dayjs/plugin/localizedFormat'),
   app = express();
 
 // Parse application/x-www-form-urlencoded
@@ -34,6 +46,19 @@ app.use(urlencoded({ extended: true }));
 
 // Parse application/json
 app.use(json());
+
+// Enable the UTC, timezone, duration, and localizedFormat plugins for day.js
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(localizedFormat);
+dayjs.extend(duration);
+
+var users = {};
+var usersLastAutoReply = {} // Store the last auto-reply time for each user
+var lastPayload = {} 
+
+// Set the auto-reply interval to 2 hours
+const autoReplyInterval = dayjs.duration(1, 'hours').asMilliseconds();
 
 // Respond with 'Hello World' when a GET request is made to the homepage
 app.get('/', function (_req, res) {
@@ -58,7 +83,7 @@ app.get('/webhook', (req, res) => {
     if (mode === 'subscribe' && token === VERIFY_TOKEN) {
 
       // Responds with the challenge token from the request
-      console.log('WEBHOOK_VERIFIED');
+      // console.log('WEBHOOK_VERIFIED');
       res.status(200).send(challenge);
 
     } else {
@@ -70,29 +95,163 @@ app.get('/webhook', (req, res) => {
 
 // Creates the endpoint for your webhook
 app.post('/webhook', (req, res) => {
+  // Parse the request body from the POST
   let body = req.body;
+
+  console.log("get started", body, body.entry[0].messaging)
 
   // Checks if this is an event from a page subscription
   if (body.object === 'page') {
 
     // Iterates over each entry - there may be multiple if batched
-    body.entry.forEach(function(entry) {
+    body.entry.forEach(async function(entry) {
 
-      // Gets the body of the webhook event
-      let webhookEvent = entry.messaging[0];
-      console.log(webhookEvent);
+        // Get the webhook event. entry.messaging is an array, but 
+        // will only ever contain one event, so we get index 0
+        let webhookEvent = entry.messaging[0];
 
-      // Get the sender PSID
-      let senderPsid = webhookEvent.sender.id;
-      console.log('Sender PSID: ' + senderPsid);
+        // Get the sender PSID
+        let senderPsid = webhookEvent.sender.id;
+        // console.log('Sender PSID: ' + senderPsid);
+        // console.log('hihi: ' + webhookEvent);
 
-      // Check if the event is a message or postback and
-      // pass the event to the appropriate handler function
-      if (webhookEvent.message) {
-        handleMessage(senderPsid, webhookEvent.message);
-      } else if (webhookEvent.postback) {
-        handlePostback(senderPsid, webhookEvent.postback);
-      }
+        // Check if user is guest from Chat plugin guest user
+        let guestUser = isGuestUser(webhookEvent);
+
+        if (users[senderPsid]){
+            // Check if the event is a message or postback and
+            // pass the event to the appropriate handler function
+            if (webhookEvent.message) {
+              handleMessage(senderPsid, webhookEvent);
+            } 
+            else if (webhookEvent.postback) {
+              handlePostback(senderPsid, webhookEvent.postback);
+            }
+        }
+        else {
+          getUserProfile(senderPsid)
+          .then( (user) => {
+            users[senderPsid] = user
+  
+            // console.log("user isssss", user)
+  
+            // Check if the event is a message or postback and
+            // pass the event to the appropriate handler function
+            if (webhookEvent.message) {
+              handleMessage(senderPsid, webhookEvent);
+            } 
+            else if (webhookEvent.postback) {
+              handlePostback(senderPsid, webhookEvent.postback);
+            }
+          })
+          .catch( e => {
+            console.log("Error retrieving user", e)
+          })
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+      // entry.messaging.forEach(async function (webhookEvent) {
+      //   // Get the sender PSID
+      //   let senderPsid = webhookEvent.sender.id;
+      //   // Get the user_ref if from Chat plugin logged in user
+      //   let user_ref = webhookEvent.sender.user_ref;
+      //   // Check if user is guest from Chat plugin guest user
+      //   let guestUser = isGuestUser(webhookEvent);
+    
+      //   console.log("hoho b4 if", senderPsid, user_ref, guestUser)
+
+      //   getUserProfile(senderPsid).then((userProfile)=>{
+      //     console.log("idk eh lmao", userProfile)
+
+      //     // Get the webhook event. entry.messaging is an array, but 
+      //     // will only ever contain one event, so we get index 0
+      //     let webhookEvent = entry.messaging[0];
+      //     console.log(webhookEvent);
+
+      //     // Get the sender PSID
+      //     let senderPsid = webhookEvent.sender.id;
+      //     console.log('Sender PSID: ' + senderPsid);
+      //     console.log('hihi: ' + webhookEvent);
+
+      //     // Check if the event is a message or postback and
+      //     // pass the event to the appropriate handler function
+      //     if (webhookEvent.message) {
+      //       handleMessage(senderPsid, webhookEvent.message);
+      //     } else if (webhookEvent.postback) {
+      //       handlePostback(senderPsid, webhookEvent.postback);
+      //     }
+      //   })
+      //   .catch( e => {
+      //     console.log("Error in getting user", e)
+      //   })
+    
+    
+      //   // if (senderPsid != null && senderPsid != undefined) {
+      //   //   if (!(senderPsid in {})) {
+      //   //     if (!guestUser) {
+      //   //       // Make call to UserProfile API only if user is not guest
+      //   //       // let user = new User(senderPsid);
+      //   //       // GraphApi.getUserProfile(senderPsid)
+      //   //       //   .then((userProfile) => {
+      //   //       //     user.setProfile(userProfile);
+      //   //       //   })
+      //   //       //   .catch((error) => {
+      //   //       //     // The profile is unavailable
+      //   //       //     console.log(JSON.stringify(body));
+      //   //       //     console.log("Profile is unavailable:", error);
+      //   //       //   })
+      //   //       //   .finally(() => {
+      //   //       //     console.log("locale: " + user.locale);
+      //   //       //     users[senderPsid] = user;
+      //   //       //     i18n.setLocale("en_US");
+      //   //       //     console.log(
+      //   //       //       "New Profile PSID:",
+      //   //       //       senderPsid,
+      //   //       //       "with locale:",
+      //   //       //       i18n.getLocale()
+      //   //       //     );
+      //   //       //     return receiveAndReturn(
+      //   //       //       users[senderPsid],
+      //   //       //       webhookEvent,
+      //   //       //       false
+      //   //       //     );
+      //   //       //   });
+      //   //     } else {
+      //   //       // setDefaultUser(senderPsid);
+      //   //       // return receiveAndReturn(users[senderPsid], webhookEvent, false);
+      //   //     }
+      //   //   } else {
+      //   //     // i18n.setLocale(users[senderPsid].locale);
+      //   //     // console.log(
+      //   //     //   "Profile already exists PSID:",
+      //   //     //   senderPsid,
+      //   //     //   "with locale:",
+      //   //     //   i18n.getLocale()
+      //   //     // );
+      //   //     // return receiveAndReturn(users[senderPsid], webhookEvent, false);
+      //   //   }
+      //   // } 
+      //   // else if (user_ref != null && user_ref != undefined) {
+      //   //   // Handle user_ref
+      //   //   // setDefaultUser(user_ref);
+      //   //   // return receiveAndReturn(users[user_ref], webhookEvent, true);
+      //   //   console.log("hoho in else if")
+      //   // }
+
+  
+      //   }
+      //   )
     });
 
     // Returns a '200 OK' response to all requests
@@ -104,18 +263,101 @@ app.post('/webhook', (req, res) => {
   }
 });
 
+async function getUserProfile(senderIgsid) {
+  let url = new URL(`https://graph.facebook.com/${senderIgsid}`);
+  url.search = new URLSearchParams({
+    access_token: PAGE_ACCESS_TOKEN,
+    fields: "first_name, last_name, gender, locale, timezone"
+  });
+
+  let response = await fetch(url);
+
+  if (response.ok) {
+    let userProfile = await response.json();
+    return {
+      firstName: userProfile.first_name,
+      lastName: userProfile.last_name,
+      gender: userProfile.gender,
+      locale: userProfile.locale,
+      timezone: userProfile.timezone
+    };
+  } 
+  else {
+    console.warn(
+      `Could not load profile for ${senderIgsid}: ${response.statusText}`,
+      await response.json()
+    );
+    return null;
+  }
+}
+
+function isGuestUser(webhookEvent) {
+  let guestUser = false;
+  if ("postback" in webhookEvent) {
+    if ("referral" in webhookEvent.postback) {
+      if ("is_guest_user" in webhookEvent.postback.referral) {
+        guestUser = true;
+      }
+    }
+  }
+  return guestUser;
+}
+
+
+
 // Handles messages events
-function handleMessage(senderPsid, receivedMessage) {
+function handleMessage(senderPsid, event) {
   let response;
+
+  let receivedMessage = event.message;
 
   // Checks if the message contains text
   if (receivedMessage.text) {
-    // Create the payload for a basic text message, which
-    // will be added to the body of your request to the Send API
-    response = {
-      'text': `You sent the message: '${receivedMessage.text}'. Now send me an attachment!`
-    };
-  } else if (receivedMessage.attachments) {
+    console.log("yoyo receivedMessage", receivedMessage)
+
+    if (receivedMessage.quick_reply){
+      switch(receivedMessage.quick_reply.payload){
+        case("OFFER"):
+        case("PLANS"):
+        case("PRICING"):
+        case("SUPPORT"):
+        case("OTHER_ENQUIRIES"):
+        case("DONE"):
+          Response.handleSelectOption(receivedMessage.quick_reply.payload, senderPsid)
+          lastPayload = receivedMessage.quick_reply.payload;
+          break;
+        default:
+          console.warn("Error, unknown quick reply payload: ", receivedMessage.quick_reply.payload)
+          break;
+      }
+      return;
+    }
+    else {
+      const currentTime = dayjs.utc(event.timestamp).tz('Asia/Kuala_Lumpur');
+
+      const lastAutoReplyTime = usersLastAutoReply[senderPsid];
+
+      const timeSinceLastAutoReply = lastAutoReplyTime ? currentTime.diff(lastAutoReplyTime, 'milliseconds') : autoReplyInterval;
+
+      // If last auto reply time till now has exceeded the interval
+      if (timeSinceLastAutoReply >= autoReplyInterval || lastPayload === 'OTHER_ENQUIRIES') {
+        console.log("hmmmmm ", timeSinceLastAutoReply,  autoReplyInterval, lastPayload)
+        response = { text: i18n.__("received") };
+
+        // Update the last auto-reply time for the user
+        usersLastAutoReply[senderPsid] = currentTime.format();
+
+        // reset
+        if (lastPayload === 'OTHER_ENQUIRIES')
+          lastPayload = ''
+      }
+      // Haven't exceed, don't send anything
+      else{
+        return false;
+      }
+    }
+  } 
+  else if (receivedMessage.attachments) {
 
     // Get the URL of the message attachment
     let attachmentUrl = receivedMessage.attachments[0].payload.url;
@@ -147,7 +389,7 @@ function handleMessage(senderPsid, receivedMessage) {
   }
 
   // Send the response message
-  callSendAPI(senderPsid, response);
+  Response.callSendAPI(senderPsid, response);
 }
 
 // Handles messaging_postbacks events
@@ -157,44 +399,70 @@ function handlePostback(senderPsid, receivedPostback) {
   // Get the payload for the postback
   let payload = receivedPostback.payload;
 
+  // User selects Main Menu from the persistent menu
+  if (payload === 'persistent_menu'){
+    const currentLocale = i18n.getLocale()
+    payload = currentLocale;
+  }
+
   // Set the response based on the postback payload
-  if (payload === 'yes') {
-    response = { 'text': 'Thanks!' };
-  } else if (payload === 'no') {
-    response = { 'text': 'Oops, try sending another image.' };
+  lastPayload = payload;
+  switch(payload){
+    case ("get_started"):
+      response = {
+        'attachment': {
+          'type': 'template',
+          'payload': {
+            'template_type': 'button',
+            'text': `Hi ${users[senderPsid].firstName || ''}, before we proceed, please choose your preferred language.`,
+            'buttons': [
+              {
+                'type': 'postback',
+                'title': 'English',
+                'payload': 'en_US',
+              },
+              {
+                'type': 'postback',
+                'title': 'Malay',
+                'payload': 'ms_MY',
+              },
+              {
+                'type': 'postback',
+                'title': 'Chinese',
+                'payload': 'zh_CN',
+              }
+            ],
+          }
+        }
+      };
+      break;
+
+    // case ("persistent_menu"):
+      
+    //   break;
+    case ("yes"):
+      response = { 'text': 'Thanks!' };
+      break;
+    case ("no"):
+      response = { 'text': 'Oops, try sending another image.' };
+      break;
+
+
+    case ("zh_CN"):
+      return Response.handleSelectLanguage("zh_CN", users[senderPsid], senderPsid);
+    case ("ms_MY"):
+      return Response.handleSelectLanguage("ms_MY", users[senderPsid], senderPsid);
+    case ("en_US"):
+      return Response.handleSelectLanguage("en_US", users[senderPsid], senderPsid);
+    
+    default:
+      response = { 'text': 'Unknown payload: ' + payload}
+      break;
   }
   // Send the message to acknowledge the postback
-  callSendAPI(senderPsid, response);
+  Response.callSendAPI(senderPsid, response);
 }
 
-// Sends response messages via the Send API
-function callSendAPI(senderPsid, response) {
-
-  // The page access token we have generated in your app settings
-  const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
-
-  // Construct the message body
-  let requestBody = {
-    'recipient': {
-      'id': senderPsid
-    },
-    'message': response
-  };
-
-  // Send the HTTP request to the Messenger Platform
-  request({
-    'uri': 'https://graph.facebook.com/v2.6/me/messages',
-    'qs': { 'access_token': PAGE_ACCESS_TOKEN },
-    'method': 'POST',
-    'json': requestBody
-  }, (err, _res, _body) => {
-    if (!err) {
-      console.log('Message sent!');
-    } else {
-      console.error('Unable to send message:' + err);
-    }
-  });
-}
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function() {

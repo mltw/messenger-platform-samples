@@ -1,0 +1,33 @@
+{
+    "menu":{
+        "offer": "Fungsi Bukku",
+        "plans": "Pakej Bukku",
+        "pricing": "Harga Bukku",
+        "support": "Sokongan Teknikal",
+        "other_enquiries": "Pertanyaan Lain",
+        "done": "Tiada Pertanyaan Lain"
+    },
+    "message":{
+        "thank": "Hai {{userFirstName}}, terima kasih kerana menghubungi Bukku.",
+        "choose": "Sila pilih soalan anda:",
+        "choose_other": "Adakah anda mempunyai sebarang pertanyaan lain?"
+    },
+    "offer":{
+        "intro": "Bukku ialah satu software akaun cloud based yang direka khas untuk peniaga kecil dan sederhana di Malaysia.",
+        "use": "Bukku membantu anda menguruskan invois dan akaun secara automatik. Anda juga dapat memantau bisnes anda secara 'real-time' dengan laporan yang disediakan oleh Bukku.",
+        "link": "Untuk maklumat lanjut, sila layari https://bukku.my/features"
+    },
+    "plans":{
+        "list": "Sekarang kami ada 3 plan:\n1. Launch Plan untuk bisnes start-up\n2. Growth Plan untuk perniagaan kecil dan sederhana (SME)\n3. Premium Plan untuk perniagaan yang telah stabil.",
+        "packages": "Untuk maklumat lanjut, sila layari https://bukku.my/pricing"
+    },
+    "pricing":{
+        "intro": "Anda dapat menikmati e-invoicing secara percuma. Jika anda juga berminat dalam urusan akaun yang basic, kami menyediakan plan serendah RM59 sebulan.",
+        "link": "Untuk maklumat lanjut, sila layari https://bukku.my/pricing"
+    },
+    "input": "Sila masukkan soalan anda pada ruangan di bawah.",
+    "received": "Kami telah menerima soalan anda. Kami akan memberi maklum balas secepat mungkin.",
+    "support" :"Untuk sebarang sokongan teknikal, anda boleh log masuk akaun Bukku anda https://app.bukku.my/signin.\nTekan butang chat untuk memulakan perbualan dengan team support kami.INSERT IMAGE",
+    "trial": "Daftar untuk percubaan percuma 30 hari: https://bukku.my/splash",
+    "done": "Tiada masalah! Sila jangan teragak-agak untuk menghubungi kami jika anda mempunyai soalan lanjut. Semoga hari anda indah!"
+}
