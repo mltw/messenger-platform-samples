@@ -201,7 +201,7 @@ module.exports = class Response {
     }
 
     // Sends response messages via the Send API
-    static callSendAPI(senderPsid, response) {
+    static async callSendAPI(senderPsid, response) {
         // Construct the message body
         let requestBody = {
         recipient: {
@@ -225,7 +225,7 @@ module.exports = class Response {
     //   });
 
         const qs = 'access_token=' + PAGE_ACCESS_TOKEN;
-        return fetch('https://graph.facebook.com/me/messages?' + qs, {
+        return await fetch('https://graph.facebook.com/me/messages?' + qs, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(requestBody),

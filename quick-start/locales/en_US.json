@@ -29,5 +29,6 @@
     "received": "We have received your question! Our team will be in touch with you soon.",
     "support" :"For technical support, you may log in to your Bukku account here: https://app.bukku.my/signin.\nClick the chat button to start conversation with our support team.INSERT IMAGE",
     "trial": "Sign Up for a 30-Day Free Trial here: https://bukku.my/splash",
-    "done": "No problem! Please do not hesitate to reach out to us in the future if you have further questions. Have a nice day!"
+    "done": "No problem! Please do not hesitate to reach out to us in the future if you have further questions. Have a nice day!",
+    "language": "Hi {{userFirstName}}, before we proceed, please choose your preferred language."
 }

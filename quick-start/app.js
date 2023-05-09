@@ -414,7 +414,8 @@ function handlePostback(senderPsid, receivedPostback) {
           'type': 'template',
           'payload': {
             'template_type': 'button',
-            'text': `Hi ${users[senderPsid].firstName || ''}, before we proceed, please choose your preferred language.`,
+            // 'text': `Hi ${users[senderPsid].firstName || ''}, before we proceed, please choose your preferred language.`,
+            'text': i18n.__("language", {userFirstName: users[senderPsid].firstName}),
             'buttons': [
               {
                 'type': 'postback',
