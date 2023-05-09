@@ -27,8 +27,9 @@
     },
     "input": "Sila masukkan soalan anda pada ruangan di bawah.",
     "received": "Kami telah menerima soalan anda. Kami akan memberi maklum balas secepat mungkin.",
-    "support" :"Untuk sebarang sokongan teknikal, anda boleh log masuk akaun Bukku anda https://app.bukku.my/signin.\nTekan butang chat untuk memulakan perbualan dengan team support kami.INSERT IMAGE",
+    "support" :"Untuk sebarang sokongan teknikal, anda boleh log masuk akaun Bukku anda https://app.bukku.my/signin.\nTekan butang chat untuk memulakan perbualan dengan team support kami.",
     "trial": "Daftar untuk percubaan percuma 30 hari: https://bukku.my/splash",
     "done": "Tiada masalah! Sila jangan teragak-agak untuk menghubungi kami jika anda mempunyai soalan lanjut. Semoga hari anda indah!",
-    "language": "Hi {{userFirstName}}, sebelum kami teruskan, sila pilih bahasa pilihan anda."
+    "language": "Hai {{userFirstName}}, sebelum kita bermula, sila pilih bahasa anda",
+    "attachment": "Kami telah menerima dokumen anda. Kami akan memberi maklum balas secepat mungkin."
 }

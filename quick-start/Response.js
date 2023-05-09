@@ -143,10 +143,6 @@ module.exports = class Response {
                 response = [
                     { text: i18n.__("input") }
                 ]
-                // response = response.concat([{
-                //     text: i18n.__("message.choose_other"),
-                //     quick_replies: Response.getMainMenuOptions(true, false)
-                // }]);
                 break;
             case("DONE"):
                 response = [
@@ -159,45 +155,57 @@ module.exports = class Response {
             await this.callSendAPI(senderPsid, response[i])
         }
 
-        if (payload==='SUPPORT'){
-            let response = {
-                'attachment': {
-                  'type': 'image',
-                  'payload': {
-                    // 'attachment_id': "582454270331418"
-                    'attachment_id': "1913534205670142"
-                  }
-                }
-              };
+        // if (payload==='SUPPORT'){
+        //     let response = {
+        //         'attachment': {
+        //           'type': 'image',
+        //           'payload': {
+        //             // 'attachment_id': "582454270331418"
+        //             'attachment_id': "1913534205670142"
+        //           }
+        //         }
+        //       };
 
-            let requestBody = {
-            recipient: {
-                id: senderPsid
-            },
-            message: response
-            };
+        //     let requestBody = {
+        //     recipient: {
+        //         id: senderPsid
+        //     },
+        //     message: response
+        //     };
             
 
-            request({
-                    'uri': 'https://graph.facebook.com/v16.0/me/message_attachments',
-                    'qs': { 'access_token': PAGE_ACCESS_TOKEN },
-                    'method': 'POST',
-                    'json': requestBody
-                  }, (err, _res, _body) => {
-                    if (!err) {
-                      console.log('Message sent  2222!');
-                    } else {
-                      console.error('Unable to send message:' + err);  
-                    }
-                  });
+        //     request({
+        //             'uri': 'https://graph.facebook.com/v16.0/me/message_attachments',
+        //             'qs': { 'access_token': PAGE_ACCESS_TOKEN },
+        //             'method': 'POST',
+        //             'json': requestBody
+        //           }, (err, _res, _body) => {
+        //             if (!err) {
+        //               console.log('Message sent  2222!');
+        //             } else {
+        //               console.error('Unable to send message:' + err);  
+        //             }
+        //           });
 
-            // const qs = 'access_token=' + PAGE_ACCESS_TOKEN;
-            // return fetch('https://graph.facebook.com/v16.0/me/message_attachments?' + qs, {
-            // method: 'POST',
-            // headers: {'Content-Type': 'application/json'},
-            // body: JSON.stringify(requestBody),
-            // });
+        //     // const qs = 'access_token=' + PAGE_ACCESS_TOKEN;
+        //     // return fetch('https://graph.facebook.com/v16.0/me/message_attachments?' + qs, {
+        //     // method: 'POST',
+        //     // headers: {'Content-Type': 'application/json'},
+        //     // body: JSON.stringify(requestBody),
+        //     // });
+        // }
+    }
+
+    static async handleAttachment(attachmentUrl, senderPsid){
+        let response;
+        response = [
+            { text: i18n.__("attachment") }
+        ]
+
+        for (let i = 0; i < response.length; i++){
+            await this.callSendAPI(senderPsid, response[i])
         }
+        
     }
 
     // Sends response messages via the Send API

@@ -54,11 +54,12 @@ dayjs.extend(localizedFormat);
 dayjs.extend(duration);
 
 var users = {};
-var usersLastAutoReply = {} // Store the last auto-reply time for each user
+var usersLastAutoReplyText = {} // Store the last auto-reply time for each user
+var usersLastAutoReplyAttachment = {} 
 var lastPayload = {} 
 
 // Set the auto-reply interval to 2 hours
-const autoReplyInterval = dayjs.duration(1, 'hours').asMilliseconds();
+const autoReplyInterval = dayjs.duration(2, 'minutes').asMilliseconds();
 
 // Respond with 'Hello World' when a GET request is made to the homepage
 app.get('/', function (_req, res) {
@@ -311,81 +312,90 @@ function handleMessage(senderPsid, event) {
 
   let receivedMessage = event.message;
 
-  // Checks if the message contains text
-  if (receivedMessage.text) {
-    console.log("yoyo receivedMessage", receivedMessage)
-
-    if (receivedMessage.quick_reply){
-      switch(receivedMessage.quick_reply.payload){
-        case("OFFER"):
-        case("PLANS"):
-        case("PRICING"):
-        case("SUPPORT"):
-        case("OTHER_ENQUIRIES"):
-        case("DONE"):
-          Response.handleSelectOption(receivedMessage.quick_reply.payload, senderPsid)
-          lastPayload = receivedMessage.quick_reply.payload;
-          break;
-        default:
-          console.warn("Error, unknown quick reply payload: ", receivedMessage.quick_reply.payload)
-          break;
-      }
-      return;
+  if (receivedMessage.quick_reply){
+    switch(receivedMessage.quick_reply.payload){
+      case("OFFER"):
+      case("PLANS"):
+      case("PRICING"):
+      case("SUPPORT"):
+      case("OTHER_ENQUIRIES"):
+      case("DONE"):
+        Response.handleSelectOption(receivedMessage.quick_reply.payload, senderPsid)
+        lastPayload = receivedMessage.quick_reply.payload;
+        break;
+      default:
+        console.warn("Error, unknown quick reply payload: ", receivedMessage.quick_reply.payload)
+        break;
     }
-    else {
-      const currentTime = dayjs.utc(event.timestamp).tz('Asia/Kuala_Lumpur');
+    
+    return;
+  }
+  else {
+    const currentTime = dayjs.utc(event.timestamp).tz('Asia/Kuala_Lumpur');
 
-      const lastAutoReplyTime = usersLastAutoReply[senderPsid];
+    const lastAutoReplyTimeText = usersLastAutoReplyText[senderPsid];
+    const lastAutoReplyTimeAttachment = usersLastAutoReplyAttachment[senderPsid];
 
-      const timeSinceLastAutoReply = lastAutoReplyTime ? currentTime.diff(lastAutoReplyTime, 'milliseconds') : autoReplyInterval;
+    const timeSinceLastAutoReplyText = lastAutoReplyTimeText ? currentTime.diff(lastAutoReplyTimeText, 'milliseconds') : autoReplyInterval;
+    const timeSinceLastAutoReplyAttachment = lastAutoReplyTimeAttachment ? currentTime.diff(lastAutoReplyTimeAttachment, 'milliseconds') : autoReplyInterval;
 
-      // If last auto reply time till now has exceeded the interval
-      if (timeSinceLastAutoReply >= autoReplyInterval || lastPayload === 'OTHER_ENQUIRIES') {
-        console.log("hmmmmm ", timeSinceLastAutoReply,  autoReplyInterval, lastPayload)
+    // If last auto reply time till now has exceeded the interval
+
+    if (timeSinceLastAutoReplyText >= autoReplyInterval && 
+      (receivedMessage.text || lastPayload === 'OTHER_ENQUIRIES')
+    ){
         response = { text: i18n.__("received") };
 
         // Update the last auto-reply time for the user
-        usersLastAutoReply[senderPsid] = currentTime.format();
+        usersLastAutoReplyText[senderPsid] = currentTime.format();
 
         // reset
         if (lastPayload === 'OTHER_ENQUIRIES')
           lastPayload = ''
-      }
-      // Haven't exceed, don't send anything
-      else{
-        return false;
-      }
+      
     }
-  } 
-  else if (receivedMessage.attachments) {
+    else if (timeSinceLastAutoReplyAttachment >= autoReplyInterval &&
+      receivedMessage.attachments
+    ){          
+      // Get the URL of the message attachment
+      let attachmentUrl = receivedMessage.attachments[0].payload.url;
+      // response = {
+      //   'attachment': {
+      //     'type': 'template',
+      //     'payload': {
+      //       'template_type': 'generic',
+      //       'elements': [{
+      //         'title': 'Is this the right picture?',
+      //         'subtitle': 'Tap a button to answer.',
+      //         'image_url': attachmentUrl,
+      //         'buttons': [
+      //           {
+      //             'type': 'postback',
+      //             'title': 'Yes!',
+      //             'payload': 'yes',
+      //           },
+      //           {
+      //             'type': 'postback',
+      //             'title': 'No!',
+      //             'payload': 'no',
+      //           }
+      //         ],
+      //       }]
+      //     }
+      //   }
+      // };
+      
+      // Update the last auto-reply time for the user
+      usersLastAutoReplyAttachment[senderPsid] = currentTime.format();
+      
+      Response.handleAttachment(attachmentUrl, senderPsid);
+      return
+    }
 
-    // Get the URL of the message attachment
-    let attachmentUrl = receivedMessage.attachments[0].payload.url;
-    response = {
-      'attachment': {
-        'type': 'template',
-        'payload': {
-          'template_type': 'generic',
-          'elements': [{
-            'title': 'Is this the right picture?',
-            'subtitle': 'Tap a button to answer.',
-            'image_url': attachmentUrl,
-            'buttons': [
-              {
-                'type': 'postback',
-                'title': 'Yes!',
-                'payload': 'yes',
-              },
-              {
-                'type': 'postback',
-                'title': 'No!',
-                'payload': 'no',
-              }
-            ],
-          }]
-        }
-      }
-    };
+    // Haven't exceed, don't send anything
+    else{
+      return false;
+    }
   }
 
   // Send the response message
@@ -438,8 +448,6 @@ function handlePostback(senderPsid, receivedPostback) {
       };
       break;
 
-    // case ("persistent_menu"):
-      
     //   break;
     case ("yes"):
       response = { 'text': 'Thanks!' };

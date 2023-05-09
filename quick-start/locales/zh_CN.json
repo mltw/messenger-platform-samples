@@ -27,8 +27,9 @@
     },
     "input": "请在下方输入您的问题哦。",
     "received": "感谢您的咨询！我们已收到您的问题了，将会尽快给予答复哦。",
-    "support" :"您可以登录您的Bukku 账户：https://app.bukku.my/signin ，并点击下方的聊天按钮开启与我们技术团队的对话。INSERT IMAGE",
+    "support" :"您可以登录您的Bukku 账户：https://app.bukku.my/signin ，并点击下方的聊天按钮开启与我们技术团队的对话。",
     "trial": "获取免费30天试用期: https://bukku.my/splash",
     "done": "没问题，如果有任何疑问，欢迎随时联系我们！祝您有个美好的一天！",
-    "language": "您好 {{userFirstName}}, 在开始之前, 请选着您想要的语言。"
+    "language": "你好 {{userFirstName}}, 请在开始之前选择你的语言。",
+    "attachment": "我们已收到你的附件，并将会尽快给予答复哦。"
 }
